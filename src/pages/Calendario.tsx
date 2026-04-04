@@ -23,20 +23,19 @@ function getCalendarDays(year: number, month: number) {
 export default function Calendario() {
   const [current, setCurrent] = useState(new Date());
   const [reservas, setReservas] = useState<any[]>([]);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const year = current.getFullYear();
   const month = current.getMonth();
   const days = getCalendarDays(year, month);
   const today = new Date();
 
-  // 🔥 TRAER RESERVAS REALES
   useEffect(() => {
     fetch("http://localhost:3001/reservas")
       .then((res) => res.json())
       .then((data) => setReservas(data));
   }, []);
 
-  // 🔥 TRANSFORMAR RESERVAS → EVENTOS
   const eventos: Record<string, any[]> = {};
 
   reservas.forEach((r) => {
@@ -44,19 +43,13 @@ export default function Calendario() {
 
     if (!eventos[fecha]) eventos[fecha] = [];
 
-    eventos[fecha].push({
-      title: `${r.cliente} - ${r.evento}`,
-      color:
-        r.estado === "confirmada"
-          ? "bg-status-success"
-          : r.estado === "pendiente"
-          ? "bg-status-warning"
-          : "bg-status-danger",
-    });
+    eventos[fecha].push(r);
   });
 
   const prev = () => setCurrent(new Date(year, month - 1));
   const next = () => setCurrent(new Date(year, month + 1));
+
+  const selectedEvents = selectedDay ? eventos[selectedDay] || [] : [];
 
   return (
     <Layout>
@@ -84,10 +77,7 @@ export default function Calendario() {
           <div className="p-4">
             <div className="grid grid-cols-7 gap-px">
               {DAYS.map((d) => (
-                <div
-                  key={d}
-                  className="text-center text-xs font-semibold text-muted-foreground py-2"
-                >
+                <div key={d} className="text-center text-xs font-semibold text-muted-foreground py-2">
                   {d}
                 </div>
               ))}
@@ -108,8 +98,9 @@ export default function Calendario() {
                 return (
                   <div
                     key={i}
-                    className={`min-h-[80px] sm:min-h-[100px] p-1.5 border border-border/50 rounded-md ${
-                      day ? "bg-card" : "bg-muted/30"
+                    onClick={() => day && setSelectedDay(dateStr)}
+                    className={`min-h-[80px] sm:min-h-[100px] p-1.5 border border-border/50 rounded-md cursor-pointer ${
+                      day ? "bg-card hover:bg-muted/30" : "bg-muted/30"
                     }`}
                   >
                     {day && (
@@ -125,13 +116,18 @@ export default function Calendario() {
                         </span>
 
                         <div className="mt-1 space-y-0.5">
-                          {/* 🔥 MOSTRAR HASTA 2 Y +X MÁS */}
                           {dayEvents.slice(0, 2).map((ev, j) => (
                             <div
                               key={j}
-                              className={`${ev.color} text-primary-foreground text-[10px] px-1 py-0.5 rounded truncate`}
+                              className={`text-primary-foreground text-[10px] px-1 py-0.5 rounded truncate ${
+                                ev.estado === "confirmada"
+                                  ? "bg-status-success"
+                                  : ev.estado === "pendiente"
+                                  ? "bg-status-warning"
+                                  : "bg-status-danger"
+                              }`}
                             >
-                              {ev.title}
+                              {ev.cliente}
                             </div>
                           ))}
 
@@ -149,6 +145,52 @@ export default function Calendario() {
             </div>
           </div>
         </div>
+
+        {/* 🔥 MODAL DEL DÍA */}
+        {selectedDay && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 w-full max-w-lg space-y-4 shadow-lg">
+
+              <h2 className="text-lg font-semibold">
+                Reservas del {selectedDay}
+              </h2>
+
+              {selectedEvents.length > 0 ? (
+                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                  {selectedEvents.map((r, i) => (
+                    <div
+                      key={i}
+                      className="border rounded-lg p-3 flex justify-between items-center"
+                    >
+                      <div>
+                        <p className="font-medium">{r.cliente}</p>
+                        <p className="text-sm text-muted-foreground">{r.evento}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm capitalize">{r.estado}</p>
+                        <p className="font-semibold">
+                          ${Number(r.total).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground text-sm">
+                  No hay reservas este día
+                </p>
+              )}
+
+              <div className="flex justify-end pt-2">
+                <Button onClick={() => setSelectedDay(null)}>
+                  Cerrar
+                </Button>
+              </div>
+
+            </div>
+          </div>
+        )}
+
       </div>
     </Layout>
   );
