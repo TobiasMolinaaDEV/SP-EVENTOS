@@ -7,6 +7,7 @@ import {
   FileText,
   Menu,
   X,
+  Newspaper,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useState } from "react";
@@ -16,6 +17,7 @@ const navItems = [
   { title: "Reservas", url: "/reservas", icon: ClipboardList },
   { title: "Calendario", url: "/calendario", icon: CalendarDays },
   { title: "Clientes", url: "/clientes", icon: Users },
+  { title: "Presupuestos", url: "/presupuestos", icon: Newspaper },
   { title: "Productos", url: "/productos", icon: Package },
   { title: "Remitos", url: "/remitos", icon: FileText },
 ];
@@ -29,7 +31,6 @@ export function AppSidebar() {
       <button
         onClick={() => setMobileOpen(true)}
         className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-lg bg-sidebar text-sidebar-foreground shadow-lg"
-        aria-label="Abrir menú"
       >
         <Menu className="h-5 w-5" />
       </button>
@@ -37,7 +38,7 @@ export function AppSidebar() {
       {/* Overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-foreground/30 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/30 lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -47,8 +48,10 @@ export function AppSidebar() {
         className={`
           fixed top-0 left-0 z-50 h-screen w-64 bg-sidebar flex flex-col
           transition-transform duration-200 ease-in-out
-          lg:translate-x-0 lg:static lg:z-auto
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+
+          lg:translate-x-0
+          lg:sticky lg:top-0 lg:h-screen lg:z-30
         `}
       >
         {/* Header */}
@@ -61,10 +64,10 @@ export function AppSidebar() {
               Silvina Prette Eventos
             </span>
           </div>
+
           <button
             onClick={() => setMobileOpen(false)}
             className="lg:hidden text-sidebar-muted hover:text-sidebar-foreground"
-            aria-label="Cerrar menú"
           >
             <X className="h-5 w-5" />
           </button>
@@ -94,7 +97,9 @@ export function AppSidebar() {
               AD
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-medium text-sidebar-accent-foreground">Admin</p>
+              <p className="text-sm font-medium text-sidebar-accent-foreground">
+                Admin
+              </p>
               <p className="text-xs text-sidebar-muted">Administrador</p>
             </div>
           </div>
