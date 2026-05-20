@@ -163,14 +163,6 @@ app.post("/reservas", async (req, res) => {
   }
 });
 
-// DELETE reservas
-app.delete("/reservas/:id", async (req, res) => {
-  const { id } = req.params;
-
-  await pool.query("DELETE FROM reservas WHERE id = $1", [id]);
-
-  res.json({ ok: true });
-});
 
 // PUT reservas
 app.put("/reservas/:id", async (req, res) => {
@@ -257,11 +249,6 @@ app.put("/reservas/:id", async (req, res) => {
   } finally {
     client.release();
   }
-});
-// GET productos
-app.get("/productos", async (req, res) => {
-  const result = await pool.query("SELECT * FROM productos ORDER BY id DESC");
-  res.json(result.rows);
 });
 
 // POST producto
@@ -431,12 +418,153 @@ app.put("/clientes/:id", async (req, res) => {
   res.json(result.rows[0]);
 });
 
-app.delete("/clientes/:id", async (req, res) => {
-  const { id } = req.params;
+// finalizar reserva / mover a historial
+app.delete("/reservas/:id", async (req, res) => {
 
-  await pool.query("DELETE FROM clientes WHERE id = $1", [id]);
+  const client = await pool.connect();
 
-  res.json({ ok: true });
+  try {
+
+    await client.query("BEGIN");
+
+    const { id } = req.params;
+
+    // obtener reserva
+    const reservaResult = await client.query(
+      `
+      SELECT *
+      FROM reservas
+      WHERE id = $1
+      `,
+      [id]
+    );
+
+    const reserva = reservaResult.rows[0];
+
+    if (!reserva) {
+
+      await client.query("ROLLBACK");
+
+      return res.status(404).json({
+        error: "Reserva no encontrada",
+      });
+    }
+
+    // guardar historial
+    const historialResult = await client.query(
+      `
+      INSERT INTO historial_eventos (
+        cliente,
+        telefono,
+        direccion,
+        email,
+        evento,
+        fecha,
+        horario,
+        lugar,
+        estado,
+        total,
+        sena,
+        observaciones
+      )
+      VALUES (
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12
+      )
+      RETURNING *
+      `,
+    [
+      reserva.cliente || "",
+      reserva.telefono || "",
+      reserva.direccion || "",
+      reserva.email || "",
+      reserva.evento || "",
+      reserva.fecha || null,
+      reserva.horario || "",
+      reserva.lugar || "",
+      reserva.estado || "",
+      reserva.total || 0,
+      reserva.sena || 0,
+      reserva.observaciones || "",
+    ]
+    );
+
+    const historial =
+      historialResult.rows[0];
+
+    // productos reserva
+    const productosResult = await client.query(
+      `
+      SELECT
+        rp.*,
+        p.nombre
+      FROM reserva_productos rp
+      JOIN productos p
+        ON p.id = rp.producto_id
+      WHERE rp.reserva_id = $1
+      `,
+      [id]
+    );
+
+    // guardar productos historial
+    for (const item of productosResult.rows) {
+
+      await client.query(
+        `
+        INSERT INTO historial_productos (
+          historial_id,
+          producto_id,
+          nombre,
+          cantidad
+        )
+        VALUES ($1,$2,$3,$4)
+        `,
+        [
+          historial.id,
+          item.producto_id,
+          item.nombre,
+          item.cantidad,
+        ]
+      );
+    }
+
+// eliminar productos reserva
+await client.query(
+  `
+  DELETE FROM reserva_productos
+  WHERE reserva_id = $1
+  `,
+  [id]
+);
+
+// eliminar reserva
+await client.query(
+  `
+  DELETE FROM reservas
+  WHERE id = $1
+  `,
+  [id]
+);
+
+    await client.query("COMMIT");
+
+    res.json({
+      ok: true,
+    });
+
+  } catch (error) {
+
+    await client.query("ROLLBACK");
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Error finalizando reserva",
+    });
+
+  } finally {
+
+    client.release();
+  }
 });
 // get presupuestos
 app.get("/presupuestos", async (req, res) => {
@@ -761,6 +889,30 @@ app.put(
     res.json(result.rows[0]);
   }
 );
+
+// historial
+app.get("/historial", async (req, res) => {
+
+  try {
+
+    const result = await pool.query(`
+      SELECT *
+      FROM historial_eventos
+      ORDER BY fecha_finalizado DESC
+    `);
+
+    res.json(result.rows);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Error obteniendo historial",
+    });
+  }
+});
+
 
 
 

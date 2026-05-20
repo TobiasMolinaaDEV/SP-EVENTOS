@@ -9,6 +9,7 @@ import {
   X,
   Newspaper,
   Truck,
+  Archive,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useState } from "react";
@@ -22,6 +23,7 @@ const navItems = [
   { title: "Presupuestos", url: "/presupuestos", icon: Newspaper },
   { title: "Productos", url: "/productos", icon: Package },
   { title: "Remitos", url: "/remitos", icon: FileText },
+  {title: "Historial",url: "/historial",icon: Archive,},
 ];
 
 export function AppSidebar() {

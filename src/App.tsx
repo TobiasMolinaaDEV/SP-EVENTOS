@@ -12,6 +12,7 @@ import Remitos from "./pages/Remitos.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Presupuestos from "./pages/Presupuestos.tsx";
 import Entregas from "./pages/Entregas.tsx";
+import Historial from "./pages/Historial";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/presupuestos" element={<Presupuestos/>} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/remitos" element={<Remitos />} />
+          <Route path="/historial" element={<Historial />}/>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
