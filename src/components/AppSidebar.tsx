@@ -8,12 +8,14 @@ import {
   Menu,
   X,
   Newspaper,
+  Truck,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useState } from "react";
 
 const navItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Entregas", url: "/entregas", icon: Truck },
   { title: "Reservas", url: "/reservas", icon: ClipboardList },
   { title: "Calendario", url: "/calendario", icon: CalendarDays },
   { title: "Clientes", url: "/clientes", icon: Users },

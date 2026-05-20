@@ -4,6 +4,7 @@ import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Truck } from "lucide-react";
 
 type ProductoDisponible = {
   id: number;
@@ -259,15 +260,49 @@ export default function Reservas() {
   };
 
   const eliminarReserva = async (id: number) => {
-    const confirmar = confirm("¿Seguro que querés eliminar esta reserva?");
-    if (!confirmar) return;
+  const confirmar = confirm(
+    "¿Seguro que querés eliminar esta reserva?"
+  );
 
-    await fetch(`http://localhost:3001/reservas/${id}`, {
+  if (!confirmar) return;
+
+  await fetch(
+    `http://localhost:3001/reservas/${id}`,
+    {
       method: "DELETE",
-    });
+    }
+  );
 
-    setReservas((prev) => prev.filter((r) => r.id !== id));
-  };
+  setReservas((prev) =>
+    prev.filter((r) => r.id !== id)
+  );
+};
+
+const enviarAEntregas = async (id: number) => {
+  try {
+
+    await fetch(
+      `http://localhost:3001/reservas/${id}/enviar-entregas`,
+      {
+        method: "PUT",
+      }
+    );
+
+    setReservas((prev) =>
+      prev.map((r) =>
+        r.id === id
+          ? { ...r, en_entregas: true }
+          : r
+      )
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Error enviando a entregas");
+  }
+};
 
   const reservasFiltradas = reservas.filter((r) => {
     const texto = busqueda.toLowerCase();
@@ -386,15 +421,26 @@ export default function Reservas() {
                     </div>
 
                     <div
-                      className="flex justify-end"
+                      className="flex justify-end gap-3"
                       onClick={(e) => e.stopPropagation()}
                     >
+
+                      {!r.en_entregas && (
+                        <button
+                          onClick={() => enviarAEntregas(r.id)}
+                          className="text-blue-500 text-sm font-medium"
+                        >
+                          Entregas
+                        </button>
+                      )}
+
                       <button
                         onClick={() => eliminarReserva(r.id)}
                         className="text-red-500 text-sm font-medium"
                       >
                         Eliminar
                       </button>
+
                     </div>
                   </div>
                 );
@@ -489,12 +535,26 @@ export default function Reservas() {
                           className="px-5 py-4 text-right"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <button
-                            onClick={() => eliminarReserva(r.id)}
-                            className="text-red-500 hover:scale-110 transition"
-                          >
-                            ❌
-                          </button>
+                          <div className="flex items-center justify-end gap-3">
+
+                            {!r.en_entregas && (
+                              <button
+                                onClick={() => enviarAEntregas(r.id)}
+                                className="text-blue-500 hover:text-blue-700 transition"
+                                title="Enviar a entregas"
+                              >
+                                <Truck className="h-4 w-4" />
+                              </button>
+                            )}
+
+                            <button
+                              onClick={() => eliminarReserva(r.id)}
+                              className="text-red-500 hover:scale-110 transition"
+                            >
+                              ❌
+                            </button>
+
+                          </div>
                         </td>
                       </tr>
                     );

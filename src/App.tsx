@@ -11,6 +11,7 @@ import Clientes from "./pages/Clientes.tsx";
 import Remitos from "./pages/Remitos.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Presupuestos from "./pages/Presupuestos.tsx";
+import Entregas from "./pages/Entregas.tsx";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/entregas" element={<Entregas />} />
           <Route path="/reservas" element={<Reservas />} />
           <Route path="/calendario" element={<Calendario />} />
           <Route path="/productos" element={<Productos />} />
