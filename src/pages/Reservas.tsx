@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Truck } from "lucide-react";
 
+
 type ProductoDisponible = {
   id: number;
   nombre: string;
@@ -303,6 +304,83 @@ const enviarAEntregas = async (id: number) => {
     alert("Error enviando a entregas");
   }
 };
+const generarRemito = async (reserva: any) => {
+
+  const productosRes = await fetch(
+    `http://localhost:3001/reservas/${reserva.id}/productos`
+  );
+
+  const productos =
+    await productosRes.json();
+
+  const jsPDF = (await import("jspdf")).default;
+
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+
+  doc.text("REMITO", 105, 20, {
+    align: "center",
+  });
+
+  doc.setFontSize(12);
+
+  doc.text(
+    `Cliente: ${reserva.cliente}`,
+    20,
+    40
+  );
+
+  doc.text(
+    `Evento: ${reserva.evento}`,
+    20,
+    50
+  );
+
+  doc.text(
+    `Fecha: ${reserva.fecha}`,
+    20,
+    60
+  );
+
+  doc.text(
+    `Lugar: ${reserva.lugar || "-"}`,
+    20,
+    70
+  );
+
+  let y = 95;
+
+  doc.text("Productos:", 20, y);
+
+  y += 10;
+
+  productos.forEach((p: any) => {
+
+    doc.text(
+      `${p.cantidad}x ${p.nombre}`,
+      25,
+      y
+    );
+
+    y += 8;
+  });
+
+  y += 10;
+
+  doc.text(
+    `TOTAL: $${Number(
+      reserva.total
+    ).toLocaleString("es-AR")}`,
+    20,
+    y
+  );
+
+  doc.save(
+    `remito-${reserva.cliente}.pdf`
+  );
+};
+
 
   const reservasFiltradas = reservas.filter((r) => {
     const texto = busqueda.toLowerCase();
@@ -424,8 +502,15 @@ const enviarAEntregas = async (id: number) => {
                       className="flex justify-end gap-3"
                       onClick={(e) => e.stopPropagation()}
                     >
-
+                        <button
+                        onClick={() => generarRemito(r)}
+                        className="text-gray-600 hover:scale-110 transition"
+                        title="Generar remito"
+                        >
+                          🧾
+                        </button>
                       {!r.en_entregas && (
+                        
                         <button
                           onClick={() => enviarAEntregas(r.id)}
                           className="text-blue-500 text-sm font-medium"
@@ -536,6 +621,13 @@ const enviarAEntregas = async (id: number) => {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="flex items-center justify-end gap-3">
+                              <button
+                                onClick={() => generarRemito(r)}
+                                className="text-gray-600 hover:scale-110 transition"
+                                title="Generar remito"
+                              >
+                                🧾
+                              </button>
 
                             {!r.en_entregas && (
                               <button
@@ -550,6 +642,7 @@ const enviarAEntregas = async (id: number) => {
                             <button
                               onClick={() => eliminarReserva(r.id)}
                               className="text-red-500 hover:scale-110 transition"
+                              title="Eliminar reserva"
                             >
                               ❌
                             </button>

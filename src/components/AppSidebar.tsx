@@ -10,9 +10,11 @@ import {
   Newspaper,
   Truck,
   Archive,
+  User,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useState } from "react";
+import { title } from "process";
 
 const navItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -24,6 +26,7 @@ const navItems = [
   { title: "Productos", url: "/productos", icon: Package },
   { title: "Remitos", url: "/remitos", icon: FileText },
   {title: "Historial",url: "/historial",icon: Archive,},
+  {title: "Usuarios", url: "/usuarios", icon: Users,},
 ];
 
 export function AppSidebar() {

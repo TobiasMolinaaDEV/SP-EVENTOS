@@ -13,8 +13,27 @@ import NotFound from "./pages/NotFound.tsx";
 import Presupuestos from "./pages/Presupuestos.tsx";
 import Entregas from "./pages/Entregas.tsx";
 import Historial from "./pages/Historial";
+import Usuarios from "./pages/Usuarios";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
+
+function ProtectedRoute({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+
+  const token =
+    localStorage.getItem("token");
+
+  if (!token) {
+
+    return <Login />;
+  }
+
+  return <>{children}</>;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -23,15 +42,17 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/entregas" element={<Entregas />} />
-          <Route path="/reservas" element={<Reservas />} />
-          <Route path="/calendario" element={<Calendario />} />
-          <Route path="/productos" element={<Productos />} />
-          <Route path="/presupuestos" element={<Presupuestos/>} />
-          <Route path="/clientes" element={<Clientes />} />
-          <Route path="/remitos" element={<Remitos />} />
-          <Route path="/historial" element={<Historial />}/>
+          <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>}/>
+          <Route path="/entregas" element={ <ProtectedRoute><Entregas /></ProtectedRoute>} />
+          <Route path="/reservas" element={<ProtectedRoute><Reservas /></ProtectedRoute>} />
+          <Route path="/calendario" element={<ProtectedRoute><Calendario /></ProtectedRoute>} />
+          <Route path="/productos" element={<ProtectedRoute><Productos /></ProtectedRoute>}  />
+          <Route path="/presupuestos" element={<ProtectedRoute><Presupuestos/></ProtectedRoute>} />
+          <Route path="/clientes" element={<ProtectedRoute><Clientes/></ProtectedRoute>} />
+          <Route path="/remitos" element={<ProtectedRoute><Remitos/></ProtectedRoute>} />
+          <Route path="/historial" element={<ProtectedRoute><Historial /></ProtectedRoute>}/>
+          <Route path="/usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>}/>
+          <Route path="/login" element={<ProtectedRoute><Login /></ProtectedRoute>}/>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

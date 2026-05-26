@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const pool = require("./db");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
@@ -801,8 +803,86 @@ app.post("/presupuestos/:id/convertir", async (req, res) => {
     client.release();
   }
 });
-// enviar reserva a entregas
+
+// enviar reserva a entregas + crear remito
 app.put(
+  "/reservas/:id/enviar-entregas",
+  async (req, res) => {
+
+    const client = await pool.connect();
+
+    try {
+
+      await client.query("BEGIN");
+
+      const { id } = req.params;
+
+      // enviar a entregas
+      const reservaResult = await client.query(
+        `
+        UPDATE reservas
+        SET en_entregas = true
+        WHERE id = $1
+        RETURNING *
+        `,
+        [id]
+      );
+
+      const reserva =
+        reservaResult.rows[0];
+
+      // crear remito
+      await client.query(
+        `
+        INSERT INTO remitos (
+          reserva_id,
+          cliente,
+          evento,
+          fecha,
+          horario,
+          lugar,
+          total,
+          observaciones
+        )
+        VALUES (
+          $1,$2,$3,$4,$5,$6,$7,$8
+        )
+        `,
+        [
+          reserva.id,
+          reserva.cliente,
+          reserva.evento,
+          reserva.fecha,
+          reserva.horario,
+          reserva.lugar,
+          reserva.total,
+          reserva.observaciones,
+        ]
+      );
+
+      await client.query("COMMIT");
+
+      res.json(reserva);
+
+    } catch (error) {
+
+      await client.query("ROLLBACK");
+
+      console.error(error);
+
+      res.status(500).json({
+        error: "Error enviando a entregas",
+      });
+
+    } finally {
+
+      client.release();
+    }
+  }
+);
+
+// enviar reserva a entregas
+/*app.put(
   "/reservas/:id/enviar-entregas",
   async (req, res) => {
 
@@ -821,8 +901,8 @@ app.put(
     res.json(result.rows[0]);
   }
 );
+*/
 
-// obtener entregas
 // obtener entregas
 app.get("/entregas", async (req, res) => {
 
@@ -913,6 +993,270 @@ app.get("/historial", async (req, res) => {
   }
 });
 
+// obtener remitos
+app.get("/remitos", async (req, res) => {
+
+  try {
+
+    const result = await pool.query(`
+      SELECT *
+      FROM remitos
+      ORDER BY fecha_generado DESC
+    `);
+
+    res.json(result.rows);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Error obteniendo remitos",
+    });
+  }
+});
+// obtener usuarios
+// obtener usuarios
+app.get("/usuarios", async (req, res) => {
+
+  try {
+
+    const result = await pool.query(`
+      SELECT
+        id,
+        nombre,
+        email,
+        rol,
+        activo,
+        created_at
+      FROM usuarios
+      WHERE activo = true
+      ORDER BY id DESC
+    `);
+
+    res.json(result.rows);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Error obteniendo usuarios",
+    });
+  }
+});
+
+// crear usuario
+app.post("/usuarios", async (req, res) => {
+
+  try {
+
+    const {
+      nombre,
+      email,
+      password,
+      rol,
+    } = req.body;
+
+    const passwordHash =
+      await bcrypt.hash(password, 10);
+
+    const result = await pool.query(
+      `
+      INSERT INTO usuarios (
+        nombre,
+        email,
+        password,
+        rol
+      )
+      VALUES ($1,$2,$3,$4)
+      RETURNING
+        id,
+        nombre,
+        email,
+        rol,
+        activo,
+        created_at
+      `,
+      [
+        nombre,
+        email,
+        passwordHash,
+        rol || "empleado",
+      ]
+    );
+
+    res.json(result.rows[0]);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Error creando usuario",
+    });
+  }
+});
+// editar usuario
+app.put("/usuarios/:id", async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+
+    const {
+      nombre,
+      email,
+      rol,
+    } = req.body;
+
+    const result = await pool.query(
+      `
+      UPDATE usuarios
+      SET
+        nombre = $1,
+        email = $2,
+        rol = $3
+      WHERE id = $4
+      RETURNING
+        id,
+        nombre,
+        email,
+        rol,
+        activo,
+        created_at
+      `,
+      [
+        nombre,
+        email,
+        rol,
+        id,
+      ]
+    );
+
+    res.json(result.rows[0]);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Error editando usuario",
+    });
+  }
+});
+// desactivar usuario
+app.delete("/usuarios/:id", async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+
+    await pool.query(
+      `
+      UPDATE usuarios
+      SET activo = false
+      WHERE id = $1
+      `,
+      [id]
+    );
+
+    res.json({
+      success: true,
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Error desactivando usuario",
+    });
+  }
+});
+
+// login
+app.post("/login", async (req, res) => {
+
+  try {
+
+    const {
+      email,
+      password,
+    } = req.body;
+
+    // buscar usuario
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM usuarios
+      WHERE email = $1
+      AND activo = true
+      `,
+      [email]
+    );
+
+    const usuario =
+      result.rows[0];
+
+    // usuario no existe
+    if (!usuario) {
+
+      return res.status(401).json({
+        error: "Usuario incorrecto",
+      });
+    }
+
+    // verificar password
+    const passwordValida =
+      await bcrypt.compare(
+        password,
+        usuario.password
+      );
+
+    if (!passwordValida) {
+
+      return res.status(401).json({
+        error: "Contraseña incorrecta",
+      });
+    }
+
+    // generar token
+    const token = jwt.sign(
+      {
+        id: usuario.id,
+        rol: usuario.rol,
+      },
+
+      "secreto_super_seguro",
+
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    res.json({
+
+      token,
+
+      usuario: {
+        id: usuario.id,
+        nombre: usuario.nombre,
+        email: usuario.email,
+        rol: usuario.rol,
+      },
+
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      error: "Error en login",
+    });
+  }
+});
 
 
 
