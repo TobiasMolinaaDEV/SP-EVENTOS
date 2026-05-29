@@ -11,26 +11,90 @@ import {
   Truck,
   Archive,
   User,
+  LogOut,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useState } from "react";
 import { title } from "process";
 
+const usuarioStorage = JSON.parse(
+  localStorage.getItem("usuario") || "{}"
+);
+
+const esAdmin =
+  usuarioStorage.rol === "admin";
+
 const navItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Entregas", url: "/entregas", icon: Truck },
-  { title: "Reservas", url: "/reservas", icon: ClipboardList },
-  { title: "Calendario", url: "/calendario", icon: CalendarDays },
-  { title: "Clientes", url: "/clientes", icon: Users },
-  { title: "Presupuestos", url: "/presupuestos", icon: Newspaper },
-  { title: "Productos", url: "/productos", icon: Package },
-  { title: "Remitos", url: "/remitos", icon: FileText },
-  {title: "Historial",url: "/historial",icon: Archive,},
-  {title: "Usuarios", url: "/usuarios", icon: Users,},
-];
+
+  esAdmin && {
+    title: "Dashboard",
+    url: "/",
+    icon: LayoutDashboard,
+  },
+
+  {
+    title: "Entregas",
+    url: "/entregas",
+    icon: Truck,
+  },
+
+  {
+    title: "Reservas",
+    url: "/reservas",
+    icon: ClipboardList,
+  },
+
+  {
+    title: "Calendario",
+    url: "/calendario",
+    icon: CalendarDays,
+  },
+
+  {
+    title: "Clientes",
+    url: "/clientes",
+    icon: Users,
+  },
+
+  {
+    title: "Presupuestos",
+    url: "/presupuestos",
+    icon: Newspaper,
+  },
+
+  {
+    title: "Productos",
+    url: "/productos",
+    icon: Package,
+  },
+
+  {
+    title: "Remitos",
+    url: "/remitos",
+    icon: FileText,
+  },
+
+  esAdmin && {
+    title: "Historial",
+    url: "/historial",
+    icon: Archive,
+  },
+
+  esAdmin && {
+    title: "Usuarios",
+    url: "/usuarios",
+    icon: Users,
+  },
+
+].filter(Boolean);
 
 export function AppSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const usuario = JSON.parse(
+  localStorage.getItem("usuario") || "{}"
+  );
+
 
   return (
     <>
@@ -105,12 +169,44 @@ export function AppSidebar() {
             </div>
             <div className="leading-tight">
               <p className="text-sm font-medium text-sidebar-accent-foreground">
-                Admin
+                {usuario.nombre || "Usuario"}
               </p>
-              <p className="text-xs text-sidebar-muted">Administrador</p>
+              <p className="text-xs text-sidebar-muted">
+                {usuario.rol || "Empleado"}
+              </p>
             </div>
           </div>
         </div>
+        <button
+  onClick={() => {
+
+    localStorage.clear();
+
+    window.location.href = "/login";
+  }}
+  className="
+    w-full
+    mt-3
+    flex
+    items-center
+    justify-center
+    gap-2
+    rounded-lg
+    border
+    px-3
+    py-2
+    text-sm
+    text-red-500
+    hover:bg-red-500/10
+    transition
+  "
+>
+
+  <LogOut className="h-4 w-4" />
+
+  Cerrar sesión
+
+</button>
       </aside>
     </>
   );

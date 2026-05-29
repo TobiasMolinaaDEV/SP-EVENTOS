@@ -14,6 +14,33 @@ import {
 
 export default function Usuarios() {
 
+
+  const usuario = JSON.parse(
+    localStorage.getItem("usuario") || "{}"
+  );
+
+  if (usuario.rol !== "admin") {
+
+    return (
+
+      <Layout>
+
+        <div className="p-10">
+
+          <h1 className="text-2xl font-bold mb-2">
+            Acceso denegado
+          </h1>
+
+          <p className="text-muted-foreground">
+            No tenés permisos para acceder a esta sección.
+          </p>
+
+        </div>
+
+      </Layout>
+    );
+  }
+  
   const [usuarios, setUsuarios] =
     useState<any[]>([]);
 
@@ -31,6 +58,9 @@ export default function Usuarios() {
 
   const [rol, setRol] =
     useState("empleado");
+
+  const [editId, setEditId] =
+  useState<number | null>(null);
 
   useEffect(() => {
     cargarUsuarios();
@@ -56,9 +86,35 @@ export default function Usuarios() {
 
   const crearUsuario = async () => {
 
-    try {
+  try {
 
-      const res = await fetch(
+    const payload = {
+      nombre,
+      email,
+      rol,
+    };
+
+    let res;
+
+    if (editId) {
+
+      res = await fetch(
+        `http://localhost:3001/usuarios/${editId}`,
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify(payload),
+        }
+      );
+
+    } else {
+
+      res = await fetch(
         "http://localhost:3001/usuarios",
         {
           method: "POST",
@@ -69,33 +125,35 @@ export default function Usuarios() {
           },
 
           body: JSON.stringify({
-            nombre,
-            email,
+            ...payload,
             password,
-            rol,
           }),
         }
       );
-
-      if (!res.ok) {
-
-        throw new Error(
-          "Error creando usuario"
-        );
-      }
-
-      setNombre("");
-      setEmail("");
-      setPassword("");
-      setRol("empleado");
-
-      cargarUsuarios();
-
-    } catch (error) {
-
-      console.error(error);
     }
-  };
+
+    if (!res.ok) {
+
+      throw new Error(
+        editId
+          ? "Error actualizando usuario"
+          : "Error creando usuario"
+      );
+    }
+
+    setNombre("");
+    setEmail("");
+    setPassword("");
+    setRol("empleado");
+    setEditId(null);
+
+    cargarUsuarios();
+
+  } catch (error) {
+
+    console.error(error);
+  }
+};
 
   const eliminarUsuario = async (
     id: number
@@ -118,6 +176,23 @@ export default function Usuarios() {
     }
   };
 
+  const editarUsuario = (u: any) => {
+
+  setNombre(u.nombre);
+
+  setEmail(u.email);
+
+  setPassword("");
+
+  setRol(u.rol);
+
+  setEditId(u.id);
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};
   const usuariosFiltrados =
     usuarios.filter((u) => {
 
@@ -165,11 +240,15 @@ export default function Usuarios() {
             <div>
 
               <h2 className="font-semibold text-lg">
-                Crear usuario
+                {editId
+                  ? "Editar usuario"
+                  : "Crear usuario"}
               </h2>
 
               <p className="text-sm text-muted-foreground">
-                Agregar nuevo empleado al sistema
+                 {editId
+                  ? "Modificar datos del usuario"
+                  : "Agregar nuevo empleado al sistema"}
               </p>
 
             </div>
@@ -270,16 +349,18 @@ export default function Usuarios() {
           {/* BOTON */}
           <div className="mt-5">
 
-            <Button
-              className="gap-2"
-              onClick={crearUsuario}
-            >
+          <Button
+            className="gap-2"
+            onClick={crearUsuario}
+          >
 
-              <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4" />
 
-              Crear usuario
+            {editId
+              ? "Actualizar usuario"
+              : "Crear usuario"}
 
-            </Button>
+          </Button>
 
           </div>
 
@@ -442,15 +523,18 @@ export default function Usuarios() {
 
                       <div className="flex items-center justify-end gap-3">
 
-                        <button
-                          className="
-                            text-blue-500
-                            hover:text-blue-700
-                            transition
-                          "
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
+                            <button
+      onClick={() =>
+        editarUsuario(u)
+      }
+      className="
+        text-blue-500
+        hover:text-blue-700
+        transition
+      "
+    >
+      <Pencil className="h-4 w-4" />
+    </button>
 
                         <button
                           onClick={() =>

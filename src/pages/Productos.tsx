@@ -25,6 +25,13 @@ const formInicial = {
 };
 
 export default function Productos() {
+  const usuario = JSON.parse(
+  localStorage.getItem("usuario") || "{}"
+  );
+
+  const esAdmin =
+  usuario.rol === "admin";
+
   const [productos, setProductos] = useState<any[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [open, setOpen] = useState(false);
@@ -164,10 +171,15 @@ export default function Productos() {
             </p>
           </div>
 
-          <Button onClick={abrirNuevo} className="gap-2 self-start">
-            <Plus className="h-4 w-4" />
-            Nuevo producto
-          </Button>
+          {esAdmin && (
+              <Button
+                onClick={abrirNuevo}
+                className="gap-2 self-start"
+              >
+                <Plus className="h-4 w-4" />
+                Nuevo producto
+              </Button>
+            )}
         </div>
 
         <div className="relative max-w-sm">
@@ -190,7 +202,11 @@ export default function Productos() {
               return (
                 <div
                   key={p.id}
-                  onClick={() => abrirEditar(p)}
+                  onClick={() => {
+                      if (esAdmin) {
+                        abrirEditar(p);
+                      }
+                    }}
                   className="bg-card rounded-xl border shadow-sm p-5 space-y-3 cursor-pointer hover:bg-muted/30 transition"
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -247,17 +263,19 @@ export default function Productos() {
                     </p>
                   </div>
 
-                  <div
-                    className="flex justify-end"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <button
-                      onClick={() => eliminarProducto(p.id)}
-                      className="text-red-500 text-sm font-medium"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
+                  {esAdmin && (
+  <div
+    className="flex justify-end"
+    onClick={(e) => e.stopPropagation()}
+  >
+    <button
+      onClick={() => eliminarProducto(p.id)}
+      className="text-red-500 text-sm font-medium"
+    >
+      Eliminar
+    </button>
+  </div>
+)}
                 </div>
               );
             })
