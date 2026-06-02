@@ -13,6 +13,14 @@ const formInicial = {
 };
 
 export default function Clientes() {
+  const usuario = JSON.parse(
+    localStorage.getItem("usuario") || "{}"
+  );
+  const esAdmin =
+  usuario.rol === "admin";
+
+
+
   const [clientes, setClientes] = useState<any[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [open, setOpen] = useState(false);
@@ -123,13 +131,18 @@ export default function Clientes() {
             </p>
           </div>
 
-          <Button onClick={abrirNuevo} className="gap-2 self-start">
-            <Plus className="h-4 w-4" />
-            Nuevo cliente
-          </Button>
+          {esAdmin && (
+              <Button
+                onClick={abrirNuevo}
+                className="gap-2 w-full sm:w-auto"
+              >
+                <Plus className="h-4 w-4" />
+                Nuevo cliente
+              </Button>
+            )}
         </div>
 
-        <div className="relative max-w-sm">
+        <div className="relative w-full sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Buscar clientes..."
@@ -144,8 +157,23 @@ export default function Clientes() {
             clientesFiltrados.map((c) => (
               <div
                 key={c.id}
-                onClick={() => abrirEditar(c)}
-                className="bg-card rounded-xl border shadow-sm p-5 space-y-3 cursor-pointer hover:bg-muted/30 transition"
+                onClick={() => {
+                  if (esAdmin) {
+                    abrirEditar(c);
+                  }
+                }}
+                className="
+  bg-card
+  rounded-xl
+  border
+  shadow-sm
+  p-4
+  sm:p-5
+  space-y-3
+  cursor-pointer
+  hover:bg-muted/30
+  transition
+"
               >
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
@@ -166,7 +194,9 @@ export default function Clientes() {
                   {c.email && (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Mail className="h-3.5 w-3.5" />
-                      <span>{c.email}</span>
+                      <span className="truncate">
+  {c.email}
+</span>
                     </div>
                   )}
 
@@ -180,7 +210,9 @@ export default function Clientes() {
                   {c.direccion && (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <MapPin className="h-3.5 w-3.5" />
-                      <span>{c.direccion}</span>
+                      <span className="break-words">
+  {c.direccion}
+</span>
                     </div>
                   )}
                 </div>
@@ -189,12 +221,14 @@ export default function Clientes() {
                   className="flex justify-end"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <button
-                    onClick={() => eliminarCliente(c.id)}
-                    className="text-red-500 text-sm font-medium"
-                  >
-                    Eliminar
-                  </button>
+                  {esAdmin && (
+                    <button
+                      onClick={() => eliminarCliente(c.id)}
+                      className="text-red-500 text-sm font-medium"
+                    >
+                      Eliminar
+                    </button>
+                  )}
                 </div>
               </div>
             ))
@@ -207,7 +241,20 @@ export default function Clientes() {
 
         {open && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl p-6 w-full max-w-md space-y-4 shadow-lg">
+            <div
+  className="
+    bg-white
+    rounded-xl
+    p-4
+    sm:p-6
+    w-full
+    max-w-md
+    max-h-[90vh]
+    overflow-y-auto
+    space-y-4
+    shadow-lg
+  "
+>
               <h2 className="text-lg font-semibold">
                 {editId ? "Editar cliente" : "Nuevo cliente"}
               </h2>
@@ -272,3 +319,4 @@ export default function Clientes() {
     </Layout>
   );
 }
+

@@ -132,7 +132,7 @@ export function AppSidebar() {
               <Package className="h-4 w-4 text-sidebar-primary-foreground" />
             </div>
             <span className="text-base font-semibold text-sidebar-accent-foreground tracking-tight">
-              Silvina Prette Eventos
+              SP Eventos
             </span>
           </div>
 

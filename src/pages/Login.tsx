@@ -76,7 +76,7 @@ export default function Login() {
         JSON.stringify(data.usuario)
       );
 
-      navigate("/");
+      window.location.href = "/";
 
     } catch (error) {
 
