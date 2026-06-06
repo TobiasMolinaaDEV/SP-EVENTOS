@@ -38,13 +38,13 @@ const navItems = [
     icon: Truck,
   },
 
-  {
+  esAdmin && {
     title: "Reservas",
     url: "/reservas",
     icon: ClipboardList,
   },
 
-  {
+  esAdmin &&{ 
     title: "Calendario",
     url: "/calendario",
     icon: CalendarDays,
@@ -129,6 +129,7 @@ export function AppSidebar() {
         <div className="flex items-center justify-between px-6 py-5 border-b border-sidebar-border">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-lg bg-sidebar-primary flex items-center justify-center">
+              
               <Package className="h-4 w-4 text-sidebar-primary-foreground" />
             </div>
             <span className="text-base font-semibold text-sidebar-accent-foreground tracking-tight">

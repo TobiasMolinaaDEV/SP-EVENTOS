@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Truck } from "lucide-react";
+import PresupuestoPDF from "@/components/PresupuestoPDF";
+
 
 
 type ProductoDisponible = {
@@ -45,6 +47,14 @@ const formInicial = {
 const productoInicial: ProductoReserva[] = [{ producto_id: "", cantidad: 1 }];
 
 export default function Reservas() {
+
+  
+const [pdfVisible, setPdfVisible] = useState(false);
+
+const [pdfData, setPdfData] = useState<any>(null);
+
+const [pdfProductos, setPdfProductos] = useState<any[]>([]);
+
   const [reservas, setReservas] = useState<any[]>([]);
   const [busqueda, setBusqueda] = useState("");
   const [open, setOpen] = useState(false);
@@ -57,7 +67,25 @@ export default function Reservas() {
 
   const [productosReserva, setProductosReserva] =
     useState<ProductoReserva[]>(productoInicial);
+    const usuario = JSON.parse(
+      localStorage.getItem("usuario") || "{}"
+    );
 
+    if (usuario.rol !== "admin") {
+      return (
+        <Layout>
+          <div className="p-6 text-center">
+            <h2 className="text-xl font-semibold">
+              Acceso denegado
+            </h2>
+
+            <p className="text-muted-foreground mt-2">
+              No tenés permisos para ver esta sección.
+            </p>
+          </div>
+        </Layout>
+      );
+}
   useEffect(() => {
     cargarReservas();
   }, []);
@@ -313,73 +341,74 @@ const generarRemito = async (reserva: any) => {
   const productos =
     await productosRes.json();
 
-  const jsPDF = (await import("jspdf")).default;
+  setPdfData(reserva);
 
-  const doc = new jsPDF();
+  setPdfProductos(productos);
 
-  doc.setFontSize(18);
+  setPdfVisible(true);
 
-  doc.text("REMITO", 105, 20, {
-    align: "center",
-  });
+  setTimeout(async () => {
 
-  doc.setFontSize(12);
+    const element =
+      document.getElementById(
+        "presupuesto-pdf"
+      );
 
-  doc.text(
-    `Cliente: ${reserva.cliente}`,
-    20,
-    40
-  );
+    if (!element) return;
 
-  doc.text(
-    `Evento: ${reserva.evento}`,
-    20,
-    50
-  );
+    const html2canvas =
+      (await import("html2canvas"))
+        .default;
 
-  doc.text(
-    `Fecha: ${reserva.fecha}`,
-    20,
-    60
-  );
+    const jsPDF =
+      (await import("jspdf"))
+        .default;
 
-  doc.text(
-    `Lugar: ${reserva.lugar || "-"}`,
-    20,
-    70
-  );
+    const canvas =
+      await html2canvas(
+        element,
+        {
+          scale: 2,
+          useCORS: true,
+        }
+      );
 
-  let y = 95;
+    const imgData =
+      canvas.toDataURL("image/png");
 
-  doc.text("Productos:", 20, y);
+    const pdf =
+      new jsPDF(
+        "p",
+        "mm",
+        "a4"
+      );
 
-  y += 10;
+    const pdfWidth =
+      pdf.internal.pageSize.getWidth();
 
-  productos.forEach((p: any) => {
+    const pdfHeight =
+      (canvas.height * pdfWidth) /
+      canvas.width;
 
-    doc.text(
-      `${p.cantidad}x ${p.nombre}`,
-      25,
-      y
+    pdf.addImage(
+      imgData,
+      "PNG",
+      0,
+      0,
+      pdfWidth,
+      pdfHeight
     );
 
-    y += 8;
-  });
+    pdf.save(
+      `remito-${reserva.cliente}.pdf`
+    );
 
-  y += 10;
+    setPdfVisible(false);
 
-  doc.text(
-    `TOTAL: $${Number(
-      reserva.total
-    ).toLocaleString("es-AR")}`,
-    20,
-    y
-  );
-
-  doc.save(
-    `remito-${reserva.cliente}.pdf`
-  );
+  }, 500);
 };
+
+;
 
 
   const reservasFiltradas = reservas.filter((r) => {
@@ -926,6 +955,15 @@ const generarRemito = async (reserva: any) => {
             </div>
           </div>
         )}
+        {pdfVisible && pdfData && (
+  <div className="fixed left-[-9999px] top-0">
+    <PresupuestoPDF
+      presupuesto={pdfData}
+      productos={pdfProductos}
+      tipo="remito"
+    />
+  </div>
+)}
       </div>
     </Layout>
   );

@@ -3,6 +3,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
+
+
 const DAYS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
@@ -20,10 +22,31 @@ function getCalendarDays(year: number, month: number) {
   return days;
 }
 
+
 export default function Calendario() {
   const [current, setCurrent] = useState(new Date());
   const [reservas, setReservas] = useState<any[]>([]);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+
+  const usuario = JSON.parse(
+  localStorage.getItem("usuario") || "{}"
+);
+
+if (usuario.rol !== "admin") {
+  return (
+    <Layout>
+      <div className="p-6 text-center">
+        <h2 className="text-xl font-semibold">
+          Acceso denegado
+        </h2>
+
+        <p className="text-muted-foreground mt-2">
+          No tenés permisos para ver esta sección.
+        </p>
+      </div>
+    </Layout>
+  );
+}
 
   const year = current.getFullYear();
   const month = current.getMonth();

@@ -48,37 +48,33 @@ export default function PresupuestoPDF({
 
         {/* LOGO */}
         <div
-          style={{
-            height: "27mm",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            borderBottom: "1.5px solid #000",
-            gap: "4px",
-          }}
-        >
+  style={{
+    height: "27mm",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    borderBottom: "1.5px solid #000",
+    gap: "4px",
+  }}
+>
 
-          <div
-            style={{
-              width: "28mm",
-              height: "18mm",
-              border: "1px dashed #888",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "10px",
-              color: "#777",
-            }}
-          >
-            LOGO
-          </div>
+  <img
+    src="/sp-logo2.png"
+    alt="SP Eventos"
+    style={{
+      width: "28mm",
+      height: "18mm",
+      objectFit: "contain",
+    }}
+  />
 
           <div
             style={{
               fontWeight: "bold",
               fontSize: "18px",
               fontStyle: "italic",
+              marginTop: "-8mm",
             }}
           >
             {tipo === "remito"
