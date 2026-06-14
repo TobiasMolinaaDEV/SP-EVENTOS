@@ -1258,6 +1258,31 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.delete("/historial", async (req, res) => {
+  try {
+
+    console.log("ENTRO AL DELETE HISTORIAL");
+
+    await pool.query(`
+      TRUNCATE TABLE
+        historial_productos,
+        historial_eventos
+      RESTART IDENTITY
+    `);
+
+    res.json({
+      success: true,
+    });
+
+  } catch (error) {
+
+    console.error("ERROR DELETE:", error);
+
+    res.status(500).json({
+      error: "Error eliminando historial",
+    });
+  }
+});
 
 
 app.listen(3001, () => {

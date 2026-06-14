@@ -6,6 +6,7 @@ import {
   DollarSign,
   User2,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Historial() {
 
@@ -44,11 +45,36 @@ export default function Historial() {
     return fecha.split("T")[0];
   };
 
+  const vaciarHistorial = async () => {
+
+  const confirmar = window.confirm(
+    "¿Seguro que deseas eliminar todo el historial?"
+  );
+
+  if (!confirmar) return;
+
+  try {
+
+    await fetch(
+      "http://localhost:3001/historial",
+      {
+        method: "DELETE",
+      }
+    );
+
+    cargarHistorial();
+
+  } catch (error) {
+
+    console.error(error);
+  }
+  };
+
   return (
     <Layout>
 
       <div className="space-y-6">
-
+          
         <div>
           <h1 className="text-2xl font-bold">
             Historial
@@ -57,7 +83,15 @@ export default function Historial() {
           <p className="text-muted-foreground text-sm mt-1">
             Eventos finalizados
           </p>
+          <Button
+            variant="destructive"
+            onClick={vaciarHistorial}
+          >
+            Vaciar historial
+          </Button>
+
         </div>
+        
 
         {historial.length > 0 ? (
 

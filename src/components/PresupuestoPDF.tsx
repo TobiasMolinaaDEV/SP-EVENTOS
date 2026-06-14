@@ -49,13 +49,17 @@ export default function PresupuestoPDF({
         {/* LOGO */}
         <div
   style={{
-    height: "27mm",
+     height: "27mm",
+    position: "relative",
+    borderBottom: "1.5px solid #000",
+
+    /* height: "27mm",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     borderBottom: "1.5px solid #000",
-    gap: "4px",
+    gap: "4px", */
   }}
 >
 
@@ -63,26 +67,41 @@ export default function PresupuestoPDF({
     src="/sp-logo2.png"
     alt="SP Eventos"
     style={{
+      position: "absolute",
+      left: "5px",
+      top: "50%",
+      transform: "translateY(-50%)",
+      width: "250px",
+      height: "auto",
+      objectFit: "contain",
+
+      /*src="/sp-logo2.png"
+      alt="SP Eventos"
+      style={{
       width: "28mm",
       height: "18mm",
-      objectFit: "contain",
+      objectFit: "contain", */
     }}
   />
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          fontWeight: "bold",
+          fontSize: "18px",
+          fontStyle: "italic",
+        }}
+        >
+        {tipo === "remito"
+          ? "REMITO"
+          : "PRESUPUESTO"}
+    
+    </div>
+          
 
-          <div
-            style={{
-              fontWeight: "bold",
-              fontSize: "18px",
-              fontStyle: "italic",
-              marginTop: "-8mm",
-            }}
-          >
-            {tipo === "remito"
-              ? "REMITO"
-              : "PRESUPUESTO"}
-          </div>
-
-        </div>
+      </div>
 
         {/* DATOS CLIENTE / FECHAS */}
         <div
@@ -490,6 +509,8 @@ export default function PresupuestoPDF({
             ["ENVIO/RETIRO (CARGA/DESCARGA)", presupuesto.envio],
             ["DESCUENTO", presupuesto.descuento],
             ["TOTAL PEDIDO", presupuesto.total],
+            ["SEÑA", presupuesto.sena],
+            ["TOTAL A PAGAR", totalPagar],
           ].map(([label, value], i) => (
             <div
               key={String(label)}
@@ -498,7 +519,11 @@ export default function PresupuestoPDF({
                 gridTemplateColumns: "85% 15%",
                 height: "7.5mm",
                 borderBottom: "1px solid #000",
-                background: i === 3 ? "#d9d9d9" : "#f2f2f2",
+                background:
+                label === "TOTAL PEDIDO" ||
+                label === "TOTAL A PAGAR"
+                  ? "#d9d9d9"
+                  : "#f2f2f2",
                 fontWeight: "bold",
                 fontStyle: "italic",
               }}
@@ -534,131 +559,21 @@ export default function PresupuestoPDF({
             borderBottom: "1.5px solid #000",
           }}
         >
+            <div>
+                        
+              {/* TRANSFERENCIA */}
+              {/* EFECTIVO */}
+              {/* TOTAL A PAGAR */}
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "33.3% 33.3% 33.4%",
-            }}
-          >
-
-            {[
-              "ENCARGADO DE ENTREGA",
-              "ENCARGADO DE RETIRO",
-              "ENCARGADO DE COBRO",
-            ].map((t) => (
-
-              <div
-                key={t}
-                style={{
-                  height: "27mm",
-                  borderRight:
-                    "1px solid #000",
-                  textAlign: "center",
-                  fontWeight: "bold",
-                  fontStyle: "italic",
-                  paddingTop: "4px",
-                }}
-              >
-                {t}
-              </div>
-
-            ))}
-          </div>
+            </div>
 
           <div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "45% 55%",
-                height: "7mm",
-                borderBottom:
-                  "1px solid #000",
-              }}
-            >
-
-              <div
-                style={{
-                  borderRight:
-                    "1px solid #000",
-                  padding: "2px",
-                  fontWeight: "bold",
-                  fontStyle: "italic",
-                }}
-              >
-                FECHA Y BC:
-              </div>
-
-              <div
-                style={{
-                  padding: "2px",
-                  textAlign: "right",
-                  fontWeight: "bold",
-                  fontStyle: "italic",
-                }}
-              >
-                SEÑA {formatoMoneda(presupuesto.sena)}
-              </div>
-
-            </div>
-
-            <div
-              style={{
-                height: "12mm",
-                borderBottom:
-                  "1px solid #000",
-              }}
-            />
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "60% 40%",
-                height: "9mm",
-                borderBottom:
-                  "1px solid #000",
-              }}
-            >
-
-              <div
-                style={{
-                  borderRight:
-                    "1px solid #000",
-                  background: "#d9d9d9",
-                  fontWeight: "bold",
-                  fontStyle: "italic",
-                  fontSize: "16px",
-                  textAlign: "right",
-                  padding: "4px",
-                }}
-              >
-                TOTAL A PAGAR
-              </div>
-
-              <div
-                style={{
-                  padding: "4px",
-                  fontWeight: "bold",
-                  textAlign: "right",
-                }}
-              >
-                {formatoMoneda(totalPagar)}
-              </div>
-
-            </div>
-
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns:
                   "45% 18% 37%",
                 height: "7mm",
-                borderBottom:
-                  "1px solid #000",
                 fontWeight: "bold",
                 fontStyle: "italic",
               }}
@@ -666,6 +581,8 @@ export default function PresupuestoPDF({
 
               <div
                 style={{
+                  borderLeft:
+                    "1px solid #000",
                   borderRight:
                     "1px solid #000",
                   padding: "2px",
@@ -683,45 +600,16 @@ export default function PresupuestoPDF({
 
               <div
                 style={{
+                  borderRight:
+                    "1px solid #000",
                   padding: "2px",
+                  
                 }}
               >
                 EFECTIVO
               </div>
 
             </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "60% 40%",
-                height: "7mm",
-                fontWeight: "bold",
-                fontStyle: "italic",
-              }}
-            >
-
-              <div
-                style={{
-                  borderRight:
-                    "1px solid #000",
-                  padding: "2px",
-                }}
-              >
-                FECHA Y BC:
-              </div>
-
-              <div
-                style={{
-                  padding: "2px",
-                }}
-              >
-                FECHA:
-              </div>
-
-            </div>
-
           </div>
         </div>
 

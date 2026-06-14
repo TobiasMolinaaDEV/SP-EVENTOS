@@ -245,6 +245,14 @@ const [pdfProductos, setPdfProductos] = useState<any[]>([]);
       return;
     }
 
+    if (Number(form.sena || 0) > totalCalculado) {
+
+      alert(
+        "La seña no puede ser mayor al total de la reserva."
+      );
+
+      return;
+    }
     if (!validarStock()) return;
 
     const productosValidos = productosReserva
@@ -853,16 +861,26 @@ const generarRemito = async (reserva: any) => {
                           className="md:col-span-2"
                           type="number"
                           min="1"
+                          max={
+                            productoSeleccionado?.disponibles || 1
+                          }
                           value={item.cantidad}
-                          onChange={(e) =>
+                          onChange={(e) => {
+
+                            const cantidad = Number(
+                              e.target.value
+                            );
+
+                            const maximo =
+                              productoSeleccionado?.disponibles || 0;
+
                             actualizarProductoReserva(
                               i,
                               "cantidad",
-                              e.target.value
-                            )
-                          }
+                              Math.min(cantidad, maximo)
+                            );
+                          }}
                         />
-
                         <div className="md:col-span-3 text-xs text-muted-foreground">
                           {productoSeleccionado ? (
                             <>
@@ -903,14 +921,31 @@ const generarRemito = async (reserva: any) => {
                       {formatoMoneda(totalCalculado)}
                     </p>
                   </div>
+                  
+                    <Input
+                      type="number"
+                      name="sena"
+                      placeholder="Seña"
+                      value={form.sena}
+                      onChange={(e) => {
 
-                  <Input
-                    type="number"
-                    name="sena"
-                    placeholder="Seña"
-                    value={form.sena}
-                    onChange={handleChange}
-                  />
+                        const valor = Number(
+                          e.target.value
+                        );
+
+                        if (valor > totalCalculado) {
+
+                          setForm({
+                            ...form,
+                            sena: String(totalCalculado),
+                          });
+
+                          return;
+                        }
+
+                        handleChange(e);
+                      }}
+                    />
 
                   <div className="rounded-md border px-3 py-2 bg-muted/30">
                     <p className="text-xs text-muted-foreground">

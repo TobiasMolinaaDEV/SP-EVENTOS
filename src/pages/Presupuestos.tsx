@@ -190,7 +190,14 @@ export default function Presupuestos() {
 
   const guardarPresupuesto = async () => {
     if (!form.cliente || !form.evento) {
-      alert("Cliente y evento son obligatorios.");
+    alert("Cliente y evento son obligatorios.");
+    return;
+  }
+
+  if (Number(form.sena || 0) > totalCalculado) {
+    alert(
+      "La seña no puede ser mayor al total del presupuesto."
+    );
       return;
     }
 
@@ -831,7 +838,20 @@ const convertirEnReserva = async () => {
                     name="sena"
                     placeholder="Seña"
                     value={form.sena}
-                    onChange={handleChange}
+                    onChange={(e) => {
+
+                      const valor = Number(e.target.value);
+
+                      if (valor > totalCalculado) {
+                        setForm({
+                          ...form,
+                          sena: String(totalCalculado),
+                        });
+                        return;
+                      }
+
+                      handleChange(e);
+                    }}
                   />
 
                   <div className="rounded-md border px-3 py-2 bg-muted/30">
