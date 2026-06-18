@@ -32,7 +32,7 @@ export default function Clientes() {
   }, []);
 
   const cargarClientes = () => {
-    fetch("http://localhost:3001/clientes")
+    fetch("/api/clientes")
       .then((res) => res.json())
       .then((data) => setClientes(data));
   };
@@ -71,7 +71,7 @@ export default function Clientes() {
     }
 
     if (editId) {
-      const res = await fetch(`http://localhost:3001/clientes/${editId}`, {
+      const res = await fetch(`/api/clientes/${editId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -83,7 +83,7 @@ export default function Clientes() {
         prev.map((c) => (c.id === editId ? { ...c, ...actualizado } : c))
       );
     } else {
-      const res = await fetch("http://localhost:3001/clientes", {
+      const res = await fetch("/api/clientes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -103,7 +103,7 @@ export default function Clientes() {
     const confirmar = confirm("¿Seguro que querés eliminar este cliente?");
     if (!confirmar) return;
 
-    await fetch(`http://localhost:3001/clientes/${id}`, {
+    await fetch(`/api/clientes/${id}`, {
       method: "DELETE",
     });
 

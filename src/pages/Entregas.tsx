@@ -33,7 +33,7 @@ export default function Entregas() {
   const cargarEntregas = async () => {
 
     const res = await fetch(
-      "http://localhost:3001/entregas"
+      "/api/entregas"
     );
 
     const data = await res.json();
@@ -47,7 +47,7 @@ export default function Entregas() {
   ) => {
 
     await fetch(
-      `http://localhost:3001/entregas/${id}/estado`,
+      `/api/entregas/${id}/estado`,
       {
         method: "PUT",
         headers: {
@@ -82,7 +82,7 @@ export default function Entregas() {
     try {
 
       await fetch(
-        `http://localhost:3001/reservas/${id}`,
+        `/api/reservas/${id}`,
         {
           method: "DELETE",
         }

@@ -96,14 +96,14 @@ const [pdfProductos, setPdfProductos] = useState<any[]>([]);
       return;
     }
 
-    fetch(`http://localhost:3001/productos/disponibilidad?fecha=${form.fecha}`)
+    fetch(`/api/productos/disponibilidad?fecha=${form.fecha}`)
       .then((res) => res.json())
       .then((data) => setProductosDisponibles(data))
       .catch((err) => console.error("Error cargando disponibilidad:", err));
   }, [form.fecha]);
 
   const cargarReservas = () => {
-    fetch("http://localhost:3001/reservas")
+    fetch("/api/reservas")
       .then((res) => res.json())
       .then((data) => setReservas(data))
       .catch((err) => console.error("Error cargando reservas:", err));
@@ -170,7 +170,7 @@ const [pdfProductos, setPdfProductos] = useState<any[]>([]);
   setEditId(r.id);
   setOpen(true);
 
-  const res = await fetch(`http://localhost:3001/reservas/${r.id}/productos`);
+  const res = await fetch(`/api/reservas/${r.id}/productos`);
   const data = await res.json();
 
   if (data.length > 0) {
@@ -270,7 +270,7 @@ const [pdfProductos, setPdfProductos] = useState<any[]>([]);
     };
 
     if (editId) {
-      const res = await fetch(`http://localhost:3001/reservas/${editId}`, {
+      const res = await fetch(`/api/reservas/${editId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -282,7 +282,7 @@ const [pdfProductos, setPdfProductos] = useState<any[]>([]);
         prev.map((r) => (r.id === editId ? actualizada : r))
       );
     } else {
-      const res = await fetch("http://localhost:3001/reservas", {
+      const res = await fetch("/api/reservas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -304,7 +304,7 @@ const [pdfProductos, setPdfProductos] = useState<any[]>([]);
   if (!confirmar) return;
 
   await fetch(
-    `http://localhost:3001/reservas/${id}`,
+    `/api/reservas/${id}`,
     {
       method: "DELETE",
     }
@@ -319,7 +319,7 @@ const enviarAEntregas = async (id: number) => {
   try {
 
     await fetch(
-      `http://localhost:3001/reservas/${id}/enviar-entregas`,
+      `/api/reservas/${id}/enviar-entregas`,
       {
         method: "PUT",
       }
@@ -343,7 +343,7 @@ const enviarAEntregas = async (id: number) => {
 const generarRemito = async (reserva: any) => {
 
   const productosRes = await fetch(
-    `http://localhost:3001/reservas/${reserva.id}/productos`
+    `/api/reservas/${reserva.id}/productos`
   );
 
   const productos =

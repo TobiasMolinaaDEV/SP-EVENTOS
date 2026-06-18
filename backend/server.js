@@ -1286,5 +1286,5 @@ app.delete("/historial", async (req, res) => {
 
 
 app.listen(3001, () => {
-  console.log("🔥 Backend corriendo en http://localhost:3001");
+  console.log("🔥 Backend corriendo en /api");
 });

@@ -22,7 +22,7 @@ export default function Historial() {
     try {
 
       const res = await fetch(
-        "http://localhost:3001/historial"
+        "/api/historial"
       );
 
       const data = await res.json();
@@ -56,7 +56,7 @@ export default function Historial() {
   try {
 
     await fetch(
-      "http://localhost:3001/historial",
+      "/api/historial",
       {
         method: "DELETE",
       }

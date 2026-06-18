@@ -35,7 +35,7 @@ export default function Login() {
       setError("");
 
       const res = await fetch(
-        "http://localhost:3001/login",
+        "/api/login",
         {
           method: "POST",
 

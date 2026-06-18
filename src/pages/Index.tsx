@@ -71,7 +71,7 @@ export default function Dashboard() {
 
   const cargarDashboard = () => {
 
-    fetch("http://localhost:3001/dashboard")
+    fetch("/api/dashboard")
       .then((res) => res.json())
       .then((data) => setData(data));
   };

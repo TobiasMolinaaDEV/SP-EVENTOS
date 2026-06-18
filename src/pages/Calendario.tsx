@@ -54,7 +54,7 @@ if (usuario.rol !== "admin") {
   const today = new Date();
 
   useEffect(() => {
-    fetch("http://localhost:3001/reservas")
+    fetch("/api/reservas")
       .then((res) => res.json())
       .then((data) => setReservas(data));
   }, []);

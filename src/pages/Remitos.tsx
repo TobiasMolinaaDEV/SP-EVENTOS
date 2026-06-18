@@ -51,7 +51,7 @@ export default function Remitos() {
     try {
 
       const res = await fetch(
-        "http://localhost:3001/remitos"
+        "/api/remitos"
       );
 
       const data = await res.json();
@@ -92,7 +92,7 @@ const generarPDF = async (
   try {
 
     const res = await fetch(
-      `http://localhost:3001/reservas/${remito.reserva_id}/productos`
+      `/api/reservas/${remito.reserva_id}/productos`
     );
 
     const productos =

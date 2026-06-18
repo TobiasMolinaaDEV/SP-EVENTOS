@@ -87,13 +87,13 @@ export default function Presupuestos() {
   const [pdfProductos, setPdfProductos] = useState<any[]>([]);
 
   const cargarPresupuestos = () => {
-    fetch("http://localhost:3001/presupuestos")
+    fetch("/api/presupuestos")
       .then((res) => res.json())
       .then((data) => setPresupuestos(data));
   };
 
   const cargarProductos = () => {
-    fetch("http://localhost:3001/productos")
+    fetch("/api/productos")
       .then((res) => res.json())
       .then((data) => setProductos(data));
   };
@@ -169,7 +169,7 @@ export default function Presupuestos() {
     setEditId(p.id);
 
     const res = await fetch(
-      `http://localhost:3001/presupuestos/${p.id}/productos`
+      `/api/presupuestos/${p.id}/productos`
     );
 
     const data = await res.json();
@@ -235,7 +235,7 @@ export default function Presupuestos() {
     };
 
     const res = await fetch(
-      "http://localhost:3001/presupuestos",
+      "/api/presupuestos",
       {
         method: "POST",
         headers: {
@@ -261,7 +261,7 @@ export default function Presupuestos() {
   if (!confirmar) return;
 
   await fetch(
-    `http://localhost:3001/presupuestos/${id}`,
+    `/api/presupuestos/${id}`,
     {
       method: "DELETE",
     }
@@ -284,7 +284,7 @@ const convertirEnReserva = async () => {
   try {
 
     const res = await fetch(
-      `http://localhost:3001/presupuestos/${editId}/convertir`,
+      `/api/presupuestos/${editId}/convertir`,
       {
         method: "POST",
       }

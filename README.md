@@ -86,7 +86,7 @@ npx nodemon server.js
 Backend disponible en:
 
 ```
-http://localhost:3001
+/api
 ```
 
 ---

@@ -43,7 +43,7 @@ export default function Productos() {
   }, []);
 
   const cargarProductos = () => {
-    fetch("http://localhost:3001/productos")
+    fetch("/api/productos")
       .then((res) => res.json())
       .then((data) => setProductos(data));
   };
@@ -93,7 +93,7 @@ export default function Productos() {
     };
 
     if (editId) {
-      const res = await fetch(`http://localhost:3001/productos/${editId}`, {
+      const res = await fetch(`/api/productos/${editId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -116,7 +116,7 @@ export default function Productos() {
         )
       );
     } else {
-      const res = await fetch("http://localhost:3001/productos", {
+      const res = await fetch("/api/productos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -144,7 +144,7 @@ export default function Productos() {
     const confirmar = confirm("¿Seguro que querés eliminar este producto?");
     if (!confirmar) return;
 
-    await fetch(`http://localhost:3001/productos/${id}`, {
+    await fetch(`/api/productos/${id}`, {
       method: "DELETE",
     });
 

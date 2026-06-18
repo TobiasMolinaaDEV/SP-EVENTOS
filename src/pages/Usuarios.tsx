@@ -71,7 +71,7 @@ export default function Usuarios() {
     try {
 
       const res = await fetch(
-        "http://localhost:3001/usuarios"
+        "/api/usuarios"
       );
 
       const data = await res.json();
@@ -99,7 +99,7 @@ export default function Usuarios() {
     if (editId) {
 
       res = await fetch(
-        `http://localhost:3001/usuarios/${editId}`,
+        `/api/usuarios/${editId}`,
         {
           method: "PUT",
 
@@ -115,7 +115,7 @@ export default function Usuarios() {
     } else {
 
       res = await fetch(
-        "http://localhost:3001/usuarios",
+        "/api/usuarios",
         {
           method: "POST",
 
@@ -162,7 +162,7 @@ export default function Usuarios() {
     try {
 
       await fetch(
-        `http://localhost:3001/usuarios/${id}`,
+        `/api/usuarios/${id}`,
         {
           method: "DELETE",
         }
