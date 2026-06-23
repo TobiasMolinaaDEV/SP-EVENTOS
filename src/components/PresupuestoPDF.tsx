@@ -26,6 +26,10 @@ export default function PresupuestoPDF({
     Number(presupuesto.total || 0) -
     Number(presupuesto.sena || 0);
 
+  const calcularSubtotal = (p: any) =>
+  Number(p.cantidad || 0) *
+  Number(p.precio_unitario || 0);
+
   return (
     <div
       id="presupuesto-pdf"
@@ -417,9 +421,8 @@ export default function PresupuestoPDF({
           </thead>
 
           <tbody>
-
             {productos.map((p, i) => (
-
+                
               <tr
                 key={i}
                 style={{
@@ -447,26 +450,27 @@ export default function PresupuestoPDF({
                 <td style={td()} />
 
                 <td
-                  style={td(
-                    "right",
-                    true
-                  )}
-                >
-                  {formatoMoneda(
-                    p.precio_unitario
-                  )}
-                </td>
+                style={td(
+                  "right",
+                  true
+                )}
+              >
+                {formatoMoneda(
+                  p.precio_unitario
+                )}
+              </td>
 
-                <td
-                  style={td(
-                    "right",
-                    true
-                  )}
-                >
-                  {formatoMoneda(
-                    p.subtotal
-                  )}
-                </td>
+              <td
+                style={td(
+                  "right",
+                  true
+                )}
+              >
+                {formatoMoneda(
+                  Number(p.cantidad || 0) *
+                  Number(p.precio_unitario || 0)
+                )}
+              </td>
 
               </tr>
             ))}
@@ -486,15 +490,8 @@ export default function PresupuestoPDF({
                 <td style={td()} />
                 <td style={td()} />
                 <td style={td()} />
-
-                <td
-                  style={td(
-                    "right",
-                    true
-                  )}
-                >
-                  $ 0,00
-                </td>
+                <td style={td("right", true)} />
+                
 
               </tr>
             ))}
@@ -505,7 +502,6 @@ export default function PresupuestoPDF({
         {/* TOTALES */}
         <div style={{ borderTop: "1.5px solid #000" }}>
           {[
-            ["PEDIDO", presupuesto.subtotal],
             ["ENVIO/RETIRO (CARGA/DESCARGA)", presupuesto.envio],
             ["DESCUENTO", presupuesto.descuento],
             ["TOTAL PEDIDO", presupuesto.total],
